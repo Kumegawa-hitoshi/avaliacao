@@ -1,27 +1,30 @@
+using API.Modelos;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Adiciona o contexto do banco de dados
 builder.Services.AddDbContext<AppDataContext>();
 
 var app = builder.Build();
 
-// Endpoint para criar uma tarefa (POST)
-app.MapPost("/api/tarefas", async (Tarefa tarefa, AppDataContext context) =>
+using (var scope = app.Services.CreateScope())
 {
-    if (string.IsNullOrWhiteSpace(tarefa.Titulo))
-        return Results.BadRequest(new { mensagem = "Título é obrigatório." });
+    var db = scope.ServiceProvider.GetRequiredService<AppDataContext>();
+    db.Database.Migrate();
+}
 
-    if (tarefa.Titulo.Length > 100)
-        return Results.BadRequest(new { mensagem = "Título deve ter no máximo 100 caracteres." });
+app.MapGet("/", () => "Hello World!");
 
-    if (tarefa.DataVencimento.Date < DateTime.Now.Date)
-        return Results.BadRequest(new { mensagem = "A data de vencimento não pode ser no passado." });
+app.MapPost("/api/tarefas", async ([FromBody] Tarefa tarefa, AppDataContext context) =>
+{
+    if (string.IsNullOrWhiteSpace(tarefa.Titulo) || tarefa.Titulo.Length < 3)
+        return Results.BadRequest(new { erro = "O título é obrigatório e deve ter no mínimo 3 caracteres." });
 
-    var status = await context.Status.FindAsync(tarefa.StatusId);
-    if (status == null)
-        return Results.BadRequest(new { mensagem = "StatusId inválido." });
+    if (tarefa.StatusId <= 0)
+        return Results.BadRequest(new { erro = "O campo status é obrigatório." });
+
+    if (tarefa.DataVencimento == default)
+        return Results.BadRequest(new { erro = "A data de vencimento é obrigatória e deve estar no formato AAAA-MM-DD." });
 
     context.Tarefas.Add(tarefa);
     await context.SaveChangesAsync();
@@ -29,59 +32,49 @@ app.MapPost("/api/tarefas", async (Tarefa tarefa, AppDataContext context) =>
     return Results.Created($"/api/tarefas/{tarefa.Id}", tarefa);
 });
 
-// Endpoint para listar todas as tarefas (GET)
 app.MapGet("/api/tarefas", async (AppDataContext context) =>
 {
-    var tarefas = await context.Tarefas.ToListAsync();
+    var tarefas = await context.Tarefas.Include(t => t.Status).ToListAsync();
     return Results.Ok(tarefas);
 });
 
-// Endpoint para obter tarefa por ID (GET)
-app.MapGet("/api/tarefas/{id:int}", async (int id, AppDataContext context) =>
+app.MapGet("/api/tarefas/{id}", async (int id, AppDataContext context) =>
+{
+    var tarefa = await context.Tarefas.Include(t => t.Status).FirstOrDefaultAsync(t => t.Id == id);
+    return tarefa is null ? Results.NotFound(new { erro = "Tarefa não encontrada." }) : Results.Ok(tarefa);
+});
+
+app.MapPut("/api/tarefas/{id}", async (int id, [FromBody] Tarefa input, AppDataContext context) =>
 {
     var tarefa = await context.Tarefas.FindAsync(id);
 
-    if (tarefa == null)
-        return Results.NotFound(new { mensagem = "Tarefa não encontrada." });
+    if (tarefa is null)
+        return Results.NotFound(new { erro = "Tarefa não encontrada." });
+
+    if (string.IsNullOrWhiteSpace(input.Titulo) || input.Titulo.Length < 3)
+        return Results.BadRequest(new { erro = "O título é obrigatório e deve ter no mínimo 3 caracteres." });
+
+    if (input.StatusId <= 0)
+        return Results.BadRequest(new { erro = "O campo status é obrigatório." });
+
+    if (input.DataVencimento == default)
+        return Results.BadRequest(new { erro = "A data de vencimento é obrigatória e deve estar no formato AAAA-MM-DD." });
+
+    tarefa.Titulo = input.Titulo;
+    tarefa.StatusId = input.StatusId;
+    tarefa.DataVencimento = input.DataVencimento;
+
+    await context.SaveChangesAsync();
 
     return Results.Ok(tarefa);
 });
 
-// Endpoint para atualizar uma tarefa (PUT)
-app.MapPut("/api/tarefas/{id:int}", async (int id, Tarefa tarefaEditada, AppDataContext context) =>
-{
-    if (string.IsNullOrWhiteSpace(tarefaEditada.Titulo))
-        return Results.BadRequest(new { mensagem = "Título é obrigatório." });
-
-    if (tarefaEditada.Titulo.Length > 100)
-        return Results.BadRequest(new { mensagem = "Título deve ter no máximo 100 caracteres." });
-
-    if (tarefaEditada.DataVencimento.Date < DateTime.Now.Date)
-        return Results.BadRequest(new { mensagem = "A data de vencimento não pode ser no passado." });
-
-    var status = await context.Status.FindAsync(tarefaEditada.StatusId);
-    if (status == null)
-        return Results.BadRequest(new { mensagem = "StatusId inválido." });
-
-    var tarefaExistente = await context.Tarefas.FindAsync(id);
-    if (tarefaExistente == null)
-        return Results.NotFound(new { mensagem = "Tarefa não encontrada." });
-
-    tarefaExistente.Titulo = tarefaEditada.Titulo;
-    tarefaExistente.DataVencimento = tarefaEditada.DataVencimento;
-    tarefaExistente.StatusId = tarefaEditada.StatusId;
-
-    await context.SaveChangesAsync();
-
-    return Results.Ok(tarefaExistente);
-});
-
-// Endpoint para deletar uma tarefa (DELETE)
-app.MapDelete("/api/tarefas/{id:int}", async (int id, AppDataContext context) =>
+app.MapDelete("/api/tarefas/{id}", async (int id, AppDataContext context) =>
 {
     var tarefa = await context.Tarefas.FindAsync(id);
-    if (tarefa == null)
-        return Results.NotFound(new { mensagem = "Tarefa não encontrada." });
+
+    if (tarefa is null)
+        return Results.NotFound(new { erro = "Tarefa não encontrada." });
 
     context.Tarefas.Remove(tarefa);
     await context.SaveChangesAsync();
