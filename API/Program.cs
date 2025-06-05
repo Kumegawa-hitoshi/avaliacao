@@ -76,4 +76,17 @@ app.MapPut("/api/tarefas/{id:int}", async (int id, Tarefa tarefaEditada, AppData
     return Results.Ok(tarefaExistente);
 });
 
+// Endpoint para deletar uma tarefa (DELETE)
+app.MapDelete("/api/tarefas/{id:int}", async (int id, AppDataContext context) =>
+{
+    var tarefa = await context.Tarefas.FindAsync(id);
+    if (tarefa == null)
+        return Results.NotFound(new { mensagem = "Tarefa não encontrada." });
+
+    context.Tarefas.Remove(tarefa);
+    await context.SaveChangesAsync();
+
+    return Results.NoContent();
+});
+
 app.Run();

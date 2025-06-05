@@ -23,3 +23,6 @@ Content-Type: application/json
   "dataVencimento": "2025-06-12",
   "statusId": 2
 }
+
+### Deletar Tarefa
+DELETE http://localhost:5231/api/tarefas/1
