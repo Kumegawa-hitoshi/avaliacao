@@ -1,0 +1,40 @@
+API de TODO List
+
+Objetivo:
+    O foco é construir uma API simplificada para gerenciar tarefas (uma "TODO List"), composta por cinco endpoints essenciais.
+
+Endpoints a Desenvolver:
+    1.	Criar Tarefa (POST)
+        Rota: /api/tarefas
+        Validações Essenciais: 
+            titulo: Obrigatório e com no mínimo 3 caracteres.
+            status: Campo obrigatório.
+            data_vencimento: Obrigatório e no formato AAAA-MM-DD.
+
+    2.	Listar Tarefas (GET)
+        Rota: /api/tarefas
+        Funcionalidade: Retorna todas as tarefas registradas no sistema.
+
+    3.	Obter Tarefa por ID (GET)
+        Rota: /api/tarefas/{id}
+        Funcionalidade: Recupera os detalhes de uma tarefa específica usando seu identificador único (id).
+
+    4.	Atualizar Tarefa (PUT)
+        Rota: /api/tarefas/{id}
+        Validações: As mesmas regras de validação aplicadas na criação (POST) devem ser observadas.
+        Funcionalidade: Permite a atualização de todos os campos de uma tarefa existente.
+
+    5.	Deletar Tarefa (DELETE)
+        Rota: /api/tarefas/{id}
+        Funcionalidade: Remove uma tarefa do sistema com base no seu identificador.
+
+Requisitos Adicionais:
+    •	Configuração de Banco de Dados:
+        É necessário configurar um banco de dados para persistir as informações das tarefas.
+    
+    •	Controle de Versão (Commits):
+        O projeto deve ter um mínimo de 5 commits, com mensagens que descrevam claramente o propósito de cada alteração (ex: "Implementei o endpoint POST").
+    
+    •	Arquivo de Teste Rest Client (_tarefa.http):
+        A construção deste arquivo será um item avaliado.
+        Ele deve conter exemplos de requisições para cada um dos endpoints, facilitando o teste da API com ferramentas como o Rest Client.
