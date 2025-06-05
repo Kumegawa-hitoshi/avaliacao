@@ -10,3 +10,6 @@ Content-Type: application/json
   "statusId": 1,
   "dataVencimento": "2025-06-10"
 }
+
+### Listar Tarefas
+GET http://localhost:5231/api/tarefas

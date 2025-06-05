@@ -42,4 +42,13 @@ app.MapPost("/api/tarefas", async ([FromBody] Tarefa tarefa, AppDataContext cont
     return Results.Created($"/api/tarefas/{tarefa.Id}", tarefa);
 });
 
+app.MapGet("/api/tarefas", async (AppDataContext context) =>
+{
+    var tarefas = await context.Tarefas
+        .Include(t => t.Status) // Inclui o nome do status na resposta
+        .ToListAsync();
+
+    return Results.Ok(tarefas);
+});
+
 app.Run();
