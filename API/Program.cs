@@ -45,10 +45,22 @@ app.MapPost("/api/tarefas", async ([FromBody] Tarefa tarefa, AppDataContext cont
 app.MapGet("/api/tarefas", async (AppDataContext context) =>
 {
     var tarefas = await context.Tarefas
-        .Include(t => t.Status) // Inclui o nome do status na resposta
+        .Include(t => t.Status)
         .ToListAsync();
 
     return Results.Ok(tarefas);
+});
+
+app.MapGet("/api/tarefas/{id:int}", async (int id, AppDataContext context) =>
+{
+    var tarefa = await context.Tarefas
+        .Include(t => t.Status)
+        .FirstOrDefaultAsync(t => t.Id == id);
+
+    if (tarefa == null)
+        return Results.NotFound(new { mensagem = "Tarefa não encontrada." });
+
+    return Results.Ok(tarefa);
 });
 
 app.Run();

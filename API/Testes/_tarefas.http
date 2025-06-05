@@ -13,3 +13,6 @@ Content-Type: application/json
 
 ### Listar Tarefas
 GET http://localhost:5231/api/tarefas
+
+### Obter Tarefa por ID
+GET http://localhost:5231/api/tarefas/1
