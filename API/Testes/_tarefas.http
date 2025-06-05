@@ -1,14 +1,11 @@
-### Lista de Tarefas
-GET http://localhost:5231
-
-### Cadastrar Tarefa
+### Criar Tarefa
 POST http://localhost:5231/api/tarefas
 Content-Type: application/json
 
 {
-  "titulo": "Estudar ASP.NET",
-  "statusId": 1,
-  "dataVencimento": "2025-06-10"
+  "titulo": "Fazer exercícios de C#",
+  "dataVencimento": "2025-06-10",
+  "statusId": 1
 }
 
 ### Listar Tarefas
@@ -16,3 +13,13 @@ GET http://localhost:5231/api/tarefas
 
 ### Obter Tarefa por ID
 GET http://localhost:5231/api/tarefas/1
+
+### Atualizar Tarefa
+PUT http://localhost:5231/api/tarefas/1
+Content-Type: application/json
+
+{
+  "titulo": "Estudar Entity Framework",
+  "dataVencimento": "2025-06-12",
+  "statusId": 2
+}
