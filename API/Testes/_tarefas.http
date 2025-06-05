@@ -2,9 +2,11 @@
 GET http://localhost:5231
 
 ### Cadastrar Tarefa
-POST http://localhost:5231
+POST http://localhost:5231/api/tarefas
 Content-Type: application/json
 
 {
-
+  "titulo": "Estudar ASP.NET",
+  "statusId": 1,
+  "dataVencimento": "2025-06-10"
 }
