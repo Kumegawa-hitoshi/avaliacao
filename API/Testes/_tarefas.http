@@ -1,28 +1,30 @@
+@baseUrl = https://localhost:7056/api/tarefas
+
 ### Criar Tarefa
-POST http://localhost:5231/api/tarefas
+POST {{baseUrl}}
 Content-Type: application/json
 
 {
-  "titulo": "Fazer exercícios de C#",
-  "dataVencimento": "2025-06-10",
-  "statusId": 1
+  "titulo": "Estudar para a prova",
+  "descricao": "Focar em Java e POO",
+  "concluida": false
 }
 
-### Listar Tarefas
-GET http://localhost:5231/api/tarefas
+### Listar Todas as Tarefas
+GET {{baseUrl}}
 
 ### Obter Tarefa por ID
-GET http://localhost:5231/api/tarefas/1
+GET {{baseUrl}}/1
 
-### Atualizar Tarefa
-PUT http://localhost:5231/api/tarefas/1
+### Atualizar Tarefa por ID
+PUT {{baseUrl}}/1
 Content-Type: application/json
 
 {
-  "titulo": "Estudar Entity Framework",
-  "dataVencimento": "2025-06-12",
-  "statusId": 2
+  "titulo": "Estudar para a prova de Java",
+  "descricao": "Revisar também exercícios de Stream e Optional",
+  "concluida": true
 }
 
-### Deletar Tarefa
-DELETE http://localhost:5231/api/tarefas/1
+### Deletar Tarefa por ID
+DELETE {{baseUrl}}/1
